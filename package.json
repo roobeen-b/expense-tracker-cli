@@ -1,0 +1,28 @@
+{
+  "name": "expense-tracker-cli",
+  "version": "1.0.0",
+  "description": "A simple expense tracker cli app",
+  "homepage": "https://github.com/roobeen-b/expense-tracker-cli#readme",
+  "bugs": {
+    "url": "https://github.com/roobeen-b/expense-tracker-cli/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roobeen-b/expense-tracker-cli.git"
+  },
+  "license": "ISC",
+  "author": "Rubin",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  }
+}
