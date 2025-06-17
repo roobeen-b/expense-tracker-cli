@@ -8,6 +8,13 @@ const program = new Command();
 
 const FILE_PATH = path.join(__dirname, "../expenses.json");
 
+const allowedCategories: TCategory[] = [
+  "Bills",
+  "Education",
+  "Groceries",
+  "Miscellaneous",
+];
+
 const loadExpenses = (): TExpense[] => {
   try {
     if (!fs.existsSync(FILE_PATH)) return [];
@@ -64,13 +71,26 @@ program
   .description("Add new expense")
   .requiredOption("--description <desc>", "Expense description")
   .requiredOption("--amount <amount>", "Expense amount")
+  .option("--category <category>", "Expense category", "Miscellaneous")
   .action((options) => {
     try {
       const allExpenses = loadExpenses();
+
+      if (options.category && !allowedCategories.includes(options.category)) {
+        console.error(
+          `The category "${
+            options.category
+          }" is currently not available. Allowed categories includes ${allowedCategories.join(
+            ", "
+          )}.`
+        );
+        return;
+      }
       const newExpense: TExpense = {
         id: allExpenses?.length
           ? allExpenses[allExpenses.length - 1].id + 1
           : 1,
+        category: options.category as TCategory,
         date: new Date().toISOString().split("T")[0],
         amount: Number(options.amount),
         description: options.description,
@@ -87,12 +107,28 @@ program
 program
   .command("list")
   .description("List all expenses")
-  .action(() => {
+  .option("--category <category>", "Filter by category")
+  .action((options) => {
     try {
       const allExpenses = loadExpenses();
       if (!allExpenses || allExpenses.length <= 0) {
         console.log("No expense recorded yet.");
         return;
+      }
+
+      if (options.category) {
+        const filteredExpenses = allExpenses?.filter(
+          (item) => item.category === options.category
+        );
+        if (filteredExpenses && filteredExpenses.length) {
+          console.table(filteredExpenses);
+          return;
+        } else {
+          console.log(
+            `No expense made for the category "${options.category}".`
+          );
+          return;
+        }
       }
       if (allExpenses && allExpenses.length) {
         console.table(allExpenses);

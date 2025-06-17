@@ -1,8 +1,16 @@
 [
   {
     "id": 1,
+    "category": "Groceries",
     "date": "2025-06-17",
-    "amount": 40000,
-    "description": "Buying TV"
+    "amount": 1000,
+    "description": "Buy meat"
+  },
+  {
+    "id": 2,
+    "category": "Bills",
+    "date": "2025-06-17",
+    "amount": 2000,
+    "description": "Water Bill"
   }
 ]
