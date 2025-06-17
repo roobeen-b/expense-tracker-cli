@@ -58,4 +58,18 @@ program
     }
   });
 
+program
+  .command("list")
+  .description("List all expenses")
+  .action(() => {
+    try {
+      const allExpenses = loadExpenses();
+      if (allExpenses && allExpenses.length) {
+        console.table(allExpenses);
+      }
+    } catch (error) {
+      console.error(`Error while fetching all expenses list: ${error}`);
+    }
+  });
+
 program.parse(process.argv);
