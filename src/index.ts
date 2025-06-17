@@ -138,4 +138,34 @@ program
     }
   });
 
+program
+  .command("update")
+  .description("Update an expense")
+  .requiredOption("--id <id>", "Expense id to be updated")
+  .option("--description <desc>", "New description value")
+  .option("--amount <amount>", "New amount value")
+  .action((options) => {
+    if (!options.id) {
+      console.error("Expense id is required");
+      return;
+    }
+    const allExpenses = loadExpenses();
+    const existingExpenseIndex = allExpenses?.findIndex(
+      (item) => item.id == options.id
+    );
+    if (existingExpenseIndex === -1) {
+      console.error(`Expense with id:${options.id} does not exist.`);
+      return;
+    }
+    if (options.amount) {
+      allExpenses[existingExpenseIndex]["amount"] = Number(options.amount);
+    }
+    if (options.description) {
+      allExpenses[existingExpenseIndex]["description"] = options.description;
+    }
+
+    saveExpense(allExpenses);
+    console.log(`Update of expense with id:${options.id} successful`);
+  });
+
 program.parse(process.argv);
