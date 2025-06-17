@@ -1,5 +1,5 @@
 {
-  "name": "expense-tracker-cli",
+  "name": "expense-tracker",
   "version": "1.0.0",
   "description": "A simple expense tracker cli app",
   "homepage": "https://github.com/roobeen-b/expense-tracker-cli#readme",
@@ -13,7 +13,10 @@
   "license": "ISC",
   "author": "Rubin",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "bin": {
+    "expense-tracker": "dist/index.js"
+  },
   "scripts": {
     "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
