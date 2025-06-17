@@ -168,4 +168,28 @@ program
     console.log(`Update of expense with id:${options.id} successful`);
   });
 
+program
+  .command("delete")
+  .description("Delete an expense")
+  .requiredOption("--id <id>", "Expense id to be deleted")
+  .action((options) => {
+    if (!options.id) {
+      console.error("Expense id is required");
+      return;
+    }
+    const allExpenses = loadExpenses();
+    const existingExpenseIndex = allExpenses?.findIndex(
+      (item) => item.id == options.id
+    );
+    if (existingExpenseIndex === -1) {
+      console.error(`Expense with id:${options.id} does not exist.`);
+      return;
+    }
+    const remainingExpenses = allExpenses?.filter(
+      (item) => item.id != options.id
+    );
+    saveExpense(remainingExpenses);
+    console.log(`Deletion of expense with id:${options.id} successful`);
+  });
+
 program.parse(process.argv);

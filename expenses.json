@@ -4,11 +4,5 @@
     "date": "2025-06-17",
     "amount": 40000,
     "description": "Buying TV"
-  },
-  {
-    "id": 2,
-    "date": "2025-06-17",
-    "amount": 20,
-    "description": "Lunch"
   }
 ]
