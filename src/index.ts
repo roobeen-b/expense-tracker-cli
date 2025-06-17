@@ -34,6 +34,11 @@ const validateAmount = (amount: number) => {
 };
 
 program
+  .name("expense-tracker")
+  .description("A CLI application for tracking all your expenses")
+  .version("1.0.0");
+
+program
   .command("add")
   .description("Add new expense")
   .requiredOption("--description <desc>", "Expense description")
