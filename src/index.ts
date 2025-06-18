@@ -7,6 +7,7 @@ const { Command } = require("commander");
 const program = new Command();
 
 const FILE_PATH = path.join(__dirname, "../expenses.json");
+const FILE_PATH_BUDGET = path.join(__dirname, "../budget.json");
 
 const allowedCategories: TCategory[] = [
   "Bills",
@@ -25,10 +26,27 @@ const loadExpenses = (): TExpense[] => {
     return [];
   }
 };
+const loadBudget = (): TBudget[] => {
+  try {
+    if (!fs.existsSync(FILE_PATH_BUDGET)) return [];
+    const data = fs.readFileSync(FILE_PATH_BUDGET, { encoding: "utf8" });
+    return data ? JSON.parse(data) : [];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
 
 const saveExpense = (expense: TExpense[]) => {
   try {
     fs.writeFileSync(FILE_PATH, JSON.stringify(expense, null, 2));
+  } catch (err) {
+    console.error(err);
+  }
+};
+const saveBudget = (budget: TBudget[]) => {
+  try {
+    fs.writeFileSync(FILE_PATH_BUDGET, JSON.stringify(budget, null, 2));
   } catch (err) {
     console.error(err);
   }
@@ -136,7 +154,11 @@ program
         }
       }
       if (allExpenses && allExpenses.length) {
-        console.table(allExpenses);
+        const modifiedExpenses = allExpenses.map((item) => ({
+          ...item,
+          amount: `$${item.amount}`,
+        }));
+        console.table(modifiedExpenses);
       }
     } catch (error) {
       console.error(`Error while fetching all expenses list: ${error}`);
@@ -234,6 +256,71 @@ program
     );
     saveExpense(remainingExpenses);
     console.log(`Deletion of expense with id:${options.id} successful`);
+  });
+
+program
+  .command("set-budget")
+  .description("Set monthly budget")
+  .requiredOption("--month <month>", "Month value")
+  .requiredOption("--amount <amount>", "Budget amount for the month")
+  .action((options) => {
+    if (options.amount) {
+      if (!validAmount(Number(options.amount))) {
+        return;
+      }
+    }
+    const monthValue = Number(options.month);
+    if (monthValue) {
+      if (monthValue > 12 || monthValue < 1) {
+        console.error("Month value must be between 1 and 12 (inclusive)");
+        return;
+      }
+    }
+
+    const allBudgets = loadBudget();
+    const existingBudgetIndex = allBudgets?.findIndex(
+      (item) => item.month == monthValue
+    );
+    if (existingBudgetIndex === -1) {
+      const newBudget: TBudget = {
+        id: allBudgets?.length ? allBudgets[allBudgets?.length - 1]?.id + 1 : 1,
+        month: monthValue,
+        amount: Number(options.amount),
+      };
+
+      allBudgets?.push(newBudget);
+      saveBudget(allBudgets);
+      console.log(
+        `Budget for ${getMonthName(monthValue)} set with amount: ${
+          options.amount
+        }.`
+      );
+    } else {
+      allBudgets[existingBudgetIndex].amount = Number(options.amount);
+      saveBudget(allBudgets);
+      console.log(
+        `Budget for ${getMonthName(monthValue)} updated with amount: ${
+          options.amount
+        }.`
+      );
+    }
+  });
+
+program
+  .command("view-budget")
+  .description("View budget details for each month")
+  .action(() => {
+    const allBudgets = loadBudget();
+    if (!allBudgets || !allBudgets.length) {
+      console.log("No budget has been set for any month.");
+      return;
+    }
+    const modifiedBudget = allBudgets?.map((item) => ({
+      ...item,
+      amount: `$${item.amount}`,
+      month: getMonthName(Number(item.month)),
+    }));
+    console.table(modifiedBudget);
   });
 
 program.parse(process.argv);

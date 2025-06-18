@@ -7,3 +7,9 @@ type TExpense = {
   description: string;
   category: TCategory;
 };
+
+type TBudget = {
+  id: number;
+  month: number;
+  amount: number;
+};
