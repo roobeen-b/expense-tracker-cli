@@ -12,5 +12,19 @@
     "date": "2025-06-17",
     "amount": 2000,
     "description": "Water Bill"
+  },
+  {
+    "id": 3,
+    "category": "Education",
+    "date": "2025-06-18",
+    "amount": 3000,
+    "description": "School Fees"
+  },
+  {
+    "id": 4,
+    "category": "Education",
+    "date": "2025-06-18",
+    "amount": 23000,
+    "description": "College Fees"
   }
 ]

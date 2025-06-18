@@ -34,12 +34,12 @@ const saveExpense = (expense: TExpense[]) => {
   }
 };
 
-const validateAmount = (amount: number) => {
+const validAmount = (amount: number) => {
   if (isNaN(amount) || Number(amount) <= 0) {
     console.error("Invalid amount. Please enter a positive number.");
-    return;
+    return false;
   }
-  return amount;
+  return true;
 };
 
 const getMonthName = (value: number) => {
@@ -85,6 +85,11 @@ program
           )}.`
         );
         return;
+      }
+      if (options.amount) {
+        if (!validAmount(Number(options.amount))) {
+          return;
+        }
       }
       const newExpense: TExpense = {
         id: allExpenses?.length
@@ -194,6 +199,9 @@ program
       return;
     }
     if (options.amount) {
+      if (!validAmount(Number(options.amount))) {
+        return;
+      }
       allExpenses[existingExpenseIndex]["amount"] = Number(options.amount);
     }
     if (options.description) {
