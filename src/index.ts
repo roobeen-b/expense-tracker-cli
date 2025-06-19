@@ -172,32 +172,52 @@ program
   .action((options) => {
     try {
       const allExpenses = loadExpenses();
-      const monthValue = Number(options.month);
-      if (monthValue) {
-        if (monthValue > 12 || monthValue < 1) {
-          console.error("Month value must be between 1 and 12 (inclusive)");
+
+      let filteredExpenses = allExpenses;
+      if (options.month) {
+        const monthValue = Number(options.month);
+
+        if (isNaN(monthValue) || monthValue < 1 || monthValue > 12) {
+          console.error(
+            "Month value must be a number between 1 and 12 (inclusive)"
+          );
           return;
         }
-        const expensesByMonth = allExpenses?.filter((item) => {
-          const monthFromDate = item.date.split("-")?.[1];
-          return monthValue === Number(monthFromDate);
+        filteredExpenses = allExpenses.filter((item) => {
+          const monthFromDate = Number(item.date.split("-")[1]);
+          return monthValue === monthFromDate;
         });
-        const totalExpense = expensesByMonth?.reduce(
+        const totalExpense = filteredExpenses.reduce(
           (sum, item) => sum + item.amount,
           0
         );
+
         console.log(
           `Total expenses for ${getMonthName(monthValue)}: $${totalExpense}`
         );
-        return;
+
+        const allBudgets = loadBudget();
+        const currentBudget = allBudgets?.find(
+          (b) => Number(b.month) === monthValue
+        );
+
+        if (currentBudget && Number(currentBudget.amount) < totalExpense) {
+          console.warn(
+            `Warning! You have exceeded the budget limit of $${
+              currentBudget.amount
+            } for ${getMonthName(monthValue)}.`
+          );
+        }
+      } else {
+        const totalExpense = filteredExpenses.reduce(
+          (sum, item) => sum + item.amount,
+          0
+        );
+        console.log(`Total expenses: $${totalExpense}`);
       }
-      const totalExpense = allExpenses?.reduce(
-        (sum, item) => sum + item.amount,
-        0
-      );
-      console.log(`Total expenses: $${totalExpense}`);
     } catch (error) {
-      console.error(`Error generating summary: ${error}`);
+      if (error instanceof Error)
+        console.error(`Error generating summary: ${error.message}`);
     }
   });
 
