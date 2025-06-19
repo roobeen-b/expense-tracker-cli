@@ -60,6 +60,27 @@ const validAmount = (amount: number) => {
   return true;
 };
 
+const exportToCsvNode = (filename: string, data: Record<string, unknown>[]) => {
+  if (!data.length) {
+    console.warn("No data to export.");
+    return;
+  }
+  const tempArr: string[] = [];
+  const headers = Object.keys(data[0]);
+  tempArr.push(headers.join(","));
+  const csvString = data.map((row) => Object.values(row).join(","));
+
+  tempArr.push(...csvString);
+  const finalString = tempArr.join("\n");
+  fs.writeFile(filename, finalString, (err) => {
+    if (err) {
+      console.error("Error writing CSV file:", err);
+    } else {
+      console.log("CSV file written successfully!");
+    }
+  });
+};
+
 const getMonthName = (value: number) => {
   const monthMap = {
     1: "January",
@@ -341,6 +362,16 @@ program
       month: getMonthName(Number(item.month)),
     }));
     console.table(modifiedBudget);
+  });
+
+program
+  .command("export-to-csv")
+  .description("Export the data to csv")
+  .action(() => {
+    const allExpenses = loadExpenses();
+    if (allExpenses && allExpenses.length) {
+      exportToCsvNode(`expenses_${Date.now()}.csv`, allExpenses);
+    }
   });
 
 program.parse(process.argv);
