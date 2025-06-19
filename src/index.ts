@@ -16,20 +16,10 @@ const allowedCategories: TCategory[] = [
   "Miscellaneous",
 ];
 
-const loadExpenses = (): TExpense[] => {
+const loadData = (filePath: string): (TExpense | TBudget)[] => {
   try {
-    if (!fs.existsSync(FILE_PATH)) return [];
-    const data = fs.readFileSync(FILE_PATH, { encoding: "utf8" });
-    return data ? JSON.parse(data) : [];
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-};
-const loadBudget = (): TBudget[] => {
-  try {
-    if (!fs.existsSync(FILE_PATH_BUDGET)) return [];
-    const data = fs.readFileSync(FILE_PATH_BUDGET, { encoding: "utf8" });
+    if (!fs.existsSync(filePath)) return [];
+    const data = fs.readFileSync(filePath, { encoding: "utf8" });
     return data ? JSON.parse(data) : [];
   } catch (err) {
     console.error(err);
@@ -37,16 +27,9 @@ const loadBudget = (): TBudget[] => {
   }
 };
 
-const saveExpense = (expense: TExpense[]) => {
+const saveData = (data: (TExpense | TBudget)[], filePath: string) => {
   try {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(expense, null, 2));
-  } catch (err) {
-    console.error(err);
-  }
-};
-const saveBudget = (budget: TBudget[]) => {
-  try {
-    fs.writeFileSync(FILE_PATH_BUDGET, JSON.stringify(budget, null, 2));
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
   } catch (err) {
     console.error(err);
   }
@@ -113,7 +96,7 @@ program
   .option("--category <category>", "Expense category", "Miscellaneous")
   .action((options) => {
     try {
-      const allExpenses = loadExpenses();
+      const allExpenses = loadData(FILE_PATH) as TExpense[];
 
       if (options.category && !allowedCategories.includes(options.category)) {
         console.error(
@@ -140,7 +123,7 @@ program
         description: options.description,
       };
       allExpenses?.push(newExpense);
-      saveExpense(allExpenses);
+      saveData(allExpenses, FILE_PATH);
 
       console.log(`Expense added successfully (ID: ${newExpense.id})`);
     } catch (error) {
@@ -154,7 +137,7 @@ program
   .option("--category <category>", "Filter by category")
   .action((options) => {
     try {
-      const allExpenses = loadExpenses();
+      const allExpenses = loadData(FILE_PATH) as TExpense[];
       if (!allExpenses || allExpenses.length <= 0) {
         console.log("No expense recorded yet.");
         return;
@@ -192,7 +175,7 @@ program
   .option("--month <month>", "Month value in number from 1 to 12")
   .action((options) => {
     try {
-      const allExpenses = loadExpenses();
+      const allExpenses = loadData(FILE_PATH) as TExpense[];
 
       let filteredExpenses = allExpenses;
       if (options.month) {
@@ -217,7 +200,7 @@ program
           `Total expenses for ${getMonthName(monthValue)}: $${totalExpense}`
         );
 
-        const allBudgets = loadBudget();
+        const allBudgets = loadData(FILE_PATH_BUDGET) as TBudget[];
         const currentBudget = allBudgets?.find(
           (b) => Number(b.month) === monthValue
         );
@@ -253,7 +236,7 @@ program
       console.error("Expense id is required");
       return;
     }
-    const allExpenses = loadExpenses();
+    const allExpenses = loadData(FILE_PATH) as TExpense[];
     const existingExpenseIndex = allExpenses?.findIndex(
       (item) => item.id == options.id
     );
@@ -271,7 +254,7 @@ program
       allExpenses[existingExpenseIndex]["description"] = options.description;
     }
 
-    saveExpense(allExpenses);
+    saveData(allExpenses, FILE_PATH);
     console.log(`Update of expense with id:${options.id} successful`);
   });
 
@@ -284,7 +267,7 @@ program
       console.error("Expense id is required");
       return;
     }
-    const allExpenses = loadExpenses();
+    const allExpenses = loadData(FILE_PATH) as TExpense[];
     const existingExpenseIndex = allExpenses?.findIndex(
       (item) => item.id == options.id
     );
@@ -295,7 +278,7 @@ program
     const remainingExpenses = allExpenses?.filter(
       (item) => item.id != options.id
     );
-    saveExpense(remainingExpenses);
+    saveData(remainingExpenses, FILE_PATH);
     console.log(`Deletion of expense with id:${options.id} successful`);
   });
 
@@ -318,7 +301,7 @@ program
       }
     }
 
-    const allBudgets = loadBudget();
+    const allBudgets = loadData(FILE_PATH_BUDGET) as TBudget[];
     const existingBudgetIndex = allBudgets?.findIndex(
       (item) => item.month == monthValue
     );
@@ -330,7 +313,7 @@ program
       };
 
       allBudgets?.push(newBudget);
-      saveBudget(allBudgets);
+      saveData(allBudgets, FILE_PATH_BUDGET);
       console.log(
         `Budget for ${getMonthName(monthValue)} set with amount: ${
           options.amount
@@ -338,7 +321,7 @@ program
       );
     } else {
       allBudgets[existingBudgetIndex].amount = Number(options.amount);
-      saveBudget(allBudgets);
+      saveData(allBudgets, FILE_PATH_BUDGET);
       console.log(
         `Budget for ${getMonthName(monthValue)} updated with amount: ${
           options.amount
@@ -351,7 +334,7 @@ program
   .command("view-budget")
   .description("View budget details for each month")
   .action(() => {
-    const allBudgets = loadBudget();
+    const allBudgets = loadData(FILE_PATH_BUDGET) as TBudget[];
     if (!allBudgets || !allBudgets.length) {
       console.log("No budget has been set for any month.");
       return;
@@ -368,7 +351,7 @@ program
   .command("export-to-csv")
   .description("Export the data to csv")
   .action(() => {
-    const allExpenses = loadExpenses();
+    const allExpenses = loadData(FILE_PATH) as TExpense[];
     if (allExpenses && allExpenses.length) {
       exportToCsvNode(`expenses_${Date.now()}.csv`, allExpenses);
     }

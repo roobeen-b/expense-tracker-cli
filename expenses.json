@@ -26,5 +26,12 @@
     "date": "2025-06-18",
     "amount": 23000,
     "description": "College Fees"
+  },
+  {
+    "id": 5,
+    "category": "Miscellaneous",
+    "date": "2025-06-19",
+    "amount": 50,
+    "description": "Buy pen"
   }
 ]
