@@ -1,4 +1,4 @@
-# Expense Tracker CLI
+# [Expense Tracker CLI](https://roadmap.sh/projects/expense-tracker)
 A simple expense tracker application to manage your finances. The application allows users to add, delete, and view their expenses. The application also provides a summary of the expenses.
 - Users can add an expense with a description and amount.
 - Users can update an expense.
